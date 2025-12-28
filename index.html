@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>AI Image Generator</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body { font-family: Arial; padding: 16px; background: #111; color: #fff; }
+    button { padding: 10px; margin: 5px; border-radius: 8px; border: none; }
+    .style button { background: #333; color: #fff; }
+    .style button.active { background: #4caf50; }
+    input, textarea { width: 100%; margin: 8px 0; padding: 8px; }
+  </style>
+</head>
+<body>
+
+<h3>🎨 AI Image Generator</h3>
+
+<label>Reference Image</label>
+<input type="file" id="image" accept="image/*">
+
+<label>Prompt</label>
+<textarea id="prompt" placeholder="Describe the image..."></textarea>
+
+<label>Style</label>
+<div class="style">
+  <button onclick="setStyle('cinematic')">🎥 Cinematic</button>
+  <button onclick="setStyle('realistic')">🎨 Realistic</button>
+  <button onclick="setStyle('anime')">🧑‍🎤 Anime</button>
+  <button onclick="setStyle('portrait')">🖼️ Portrait</button>
+</div>
+
+<label>Images: <span id="countLabel">1</span></label>
+<input type="range" min="1" max="10" value="1" id="count">
+
+<br><br>
+<button onclick="send()" style="width:100%;background:#2196f3;color:#fff;">
+🚀 Generate
+</button>
+
+<script>
+const tg = window.Telegram.WebApp;
+let selectedStyle = "cinematic";
+
+function setStyle(style) {
+  selectedStyle = style;
+  document.querySelectorAll('.style button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+document.getElementById("count").oninput = e =>
+  document.getElementById("countLabel").innerText = e.target.value;
+
+function send() {
+  const file = document.getElementById("image").files[0];
+  const prompt = document.getElementById("prompt").value;
+  const count = document.getElementById("count").value;
+
+  if (!file || !prompt) {
+    alert("Image and prompt required");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    tg.sendData(JSON.stringify({
+      image: reader.result,
+      prompt,
+      style: selectedStyle,
+      count
+    }));
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+
+</body>
+</html>
